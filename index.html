@@ -31,35 +31,37 @@
           <h1>
 <a name="watchy" class="anchor" href="#watchy"><span class="octicon octicon-link"></span></a>Watchy</h1>
 
-<p>Using the UDP protocol opened up a new way of doing stats aggregation for me. Traditional methods of stats aggregation are daemons watching daemons creating more confusion on how to manage this as well as getting useful information.</p>
+<p>Watchy is a distributed system for Application and Server Monitoring, I've always found most solutions be very complicated and hard to manage. Making applications watch process id's then they stop and the pid has updated and you start the whole thing over again.</p>
 
-<p>Watchy has several components to it a Web Dashboard using Python Flask, and lots of $.ajax javascript on the client to see the data in realtime. A native C server on the host which reads from a unix domain socket and sends the stats to the server over udp. This way if the server goes down and comes back up everything keeps on running. Stats aggregation should be simple and easy and using TCP you have to worry about reconnecting sockets every time something goes off and on. And for Benchmarking and even capacity mangement you just want it to work not update what pids to watch and what server and port to manage.</p>
+<p>Watchy has a distributed architecture and communication between the daemon on each server to the dashboard is over udp, meaning if something goes down and comes back up again it just simply doesn't matter about handling connection issues. It seems to be working very well in my tests at work and i am sure you will love it.</p>
 
-<p>Watchy's native C library is an embedable into applications where you talk to the runtime to tell it to watch a pid or sends even custom metrics from your application.</p>
+<p><img src="http://redbrain.github.io/watchy/images/usage/watchy1.png" alt="alt text" title="Main dashboard showing all processes sending stats"></p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a name="how-it-works" class="anchor" href="#how-it-works"><span class="octicon octicon-link"></span></a>How it works</h2>
 
-<div class="highlight highlight-c"><pre><span class="n">watchy_cAttachRuntime</span> <span class="p">(</span><span class="n">socket_path</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="c1">// if the server isn't running the daemon is started</span>
-<span class="kt">void</span> <span class="n">watchy_watchPid</span> <span class="p">(</span><span class="n">getpid</span> <span class="p">())</span> <span class="c1">// tell the daemon to watch this pid and send stats to server</span>
-</pre></div>
+<p>Watchy has a very application/event driven model and it can be seen in this diagram:
+<img src="http://redbrain.github.io/watchy/images/arch/watchy1.png" alt="alt text" title="Arch1"></p>
 
-<p>Whats interesting with this approach applications can dynamically send stats so no need to manually update scripts with new pids this is all event driven in that if the application is running or not it will send stats or not.</p>
+<p>Each application can:</p>
 
-<p>And with the Dashboard going on and off it will all keep running no need to stop and restart services.</p>
+<p>And you can even call these tools to talk to the server:</p>
 
-<p><img src="http://redbrain.github.io/watchy/images/watchy1.png" alt="alt text" title="Main dashboard showing all processes sending stats"><img src="http://redbrain.github.io/watchy/images/watchy2.png" alt="alt text" title="Host showing total memory usage"><img src="http://redbrain.github.io/watchy/images/watchy3.png" alt="alt text" title="Watch a log file in realtime"></p>
+<p>But whats interesting is you can then Federate all Watchy Servers onto a common backend such as Ganglia or MongoDB.:</p>
 
-<p>Although adding in code to do this is great watchy does come with tools to make things simple, you can do:
-Sending stats can be done via:</p>
+<p><img src="http://redbrain.github.io/watchy/images/arch/watchy2.png" alt="alt text" title="Federation onto a common backend"></p>
 
-<div class="highlight highlight-bash"><pre><span class="nv">$ </span>/opt/watchy/bin/watcher -k <span class="sb">`</span>hostname<span class="sb">`</span> -b localhost -p 7878 process1:&lt;pid&gt; process2:&lt;pid&gt;
-</pre></div>
+<p>This is great because you can then reuse your existing infrastructure. Watchy comes with a realtime web dashboard and you can view realtime graphs:</p>
 
-<p>Or you can tail a log:</p>
+<p><img src="http://redbrain.github.io/watchy/images/usage/watchy2.png" alt="alt text" title="Memory Usage"></p>
 
-<div class="highlight highlight-bash"><pre><span class="nv">$ </span>tail -f /var/log/syslog <span class="p">|</span> /opt/watchy/bin/wtail -k syslog -p 7878 -b localhost
-</pre></div>
+<p>You can even watch log files in realtime:</p>
+
+<p><img src="http://redbrain.github.io/watchy/images/usage/watchy3.png" alt="alt text" title="Log"></p>
+
+<p>This can be done via:</p>
+
+<p>Or you can directly construct log packets:</p>
         </section>
 
         <aside id="sidebar">
