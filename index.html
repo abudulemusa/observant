@@ -40,12 +40,79 @@
 <h2>
 <a name="how-it-works" class="anchor" href="#how-it-works"><span class="octicon octicon-link"></span></a>How it works</h2>
 
-<p>Watchy has a very application/event driven model and it can be seen in this diagram:
-<img src="http://redbrain.github.io/watchy/images/arch/watchy1.png" alt="alt text" title="Arch1"></p>
+<p>Watchy has a very application/event driven model and it can be seen in this diagram:</p>
 
-<p>Each application can:</p>
+<p><img src="http://redbrain.github.io/watchy/images/arch/watchy1.png" alt="alt text" title="Arch1"></p>
 
-<p>And you can even call these tools to talk to the server:</p>
+<p>This can be all scripted or manipulatied by Python or C/C++:</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pywatchy</span>
+<span class="c"># hostname and port of watchy server</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">daemon</span> <span class="o">=</span> <span class="n">pywatchy</span><span class="o">.</span><span class="n">WatchyDaemon</span> <span class="p">(</span><span class="s">'localhost'</span><span class="p">,</span> <span class="mi">7878</span><span class="p">)</span> 
+<span class="c"># Creates or attaches to existing daemon on the server                                                                                                                                                              </span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">daemon</span><span class="o">.</span><span class="n">watchHost</span> <span class="p">(</span><span class="s">'hostname'</span><span class="p">)</span>
+<span class="c"># tell the daemon to watch the host server for statistics and post under specified key ('hostname')</span>
+</pre></div>
+
+<p>You can even do more stop and start watching pid's or even post logs:</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">daemon</span><span class="o">.</span><span class="n">watchPid</span> <span class="p">(</span><span class="s">'watchyserver'</span><span class="p">,</span> <span class="mi">14293</span><span class="p">)</span> <span class="c"># watch the python web app</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">daemon</span><span class="o">.</span><span class="n">postMessage</span> <span class="p">(</span><span class="s">'test'</span><span class="p">,</span> <span class="s">'Hello World'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">daemon</span><span class="o">.</span><span class="n">stopWatchPid</span> <span class="p">(</span><span class="mi">14293</span><span class="p">)</span> <span class="c"># stop watching in</span>
+</pre></div>
+
+<p>This is pretty fun its all realtime and dynamic, but probably not helpful for existing setups so it comes with more tools for example if i want to watch syslog on a server i can do:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>tail -f /var/log/syslog
+</pre></div>
+
+<p>To post this to watchy i can do:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span><span class="c"># hostname and port of watchy server, this will attach or create the daemon as expected</span>
+<span class="nv">$ </span>tail -f /var/log/syslog <span class="p">|</span> /opt/watchy/bin/wtail -k syslog -b localhost -p 7878
+</pre></div>
+
+<p><img src="http://redbrain.github.io/watchy/images/usage/watchy3.png" alt="alt text" title="Arch1"></p>
+
+<p>And if i want to watch some pids i can do:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>/opt/watchy/bin/watcher -b localhost -p 7878 key:pid key:pid...
+<span class="c"># if you specify -k &lt;keyname&gt; this will then do: watchHost (keyname)</span>
+</pre></div>
+
+<p><img src="http://redbrain.github.io/watchy/images/usage/watchy2.png" alt="alt text" title="Arch1"></p>
+
+<p>This can even integrate with C/C++ applications:</p>
+
+<div class="highlight highlight-c"><pre><span class="cp">#include &lt;watchy/watchy.h&gt;</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="n">watchy_fd</span><span class="p">;</span>
+
+<span class="c1">// super enterprise logging library</span>
+<span class="kt">int</span> <span class="nf">mylogginginit</span> <span class="p">(...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">watchy_cAttachRuntime</span> <span class="p">(</span><span class="n">WTCY_DEFAULT_FIFO</span><span class="p">,</span> <span class="s">"localhost"</span><span class="p">,</span> <span class="mi">7878</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">watchy_fd</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">WTCY_NO_ERROR</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Watchy failed [%s]</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">watchy_strerror</span> <span class="p">(</span><span class="n">ret</span><span class="p">));</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+   <span class="c1">/// done...</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">mylogwrapper</span> <span class="p">(</span><span class="kt">int</span> <span class="n">level</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">fmt</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buffer</span> <span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+    <span class="p">...</span>
+    <span class="n">vsnprintf</span> <span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">buffer</span><span class="p">)...);</span>
+    <span class="c1">// log the message</span>
+
+    <span class="k">struct</span> <span class="n">watchy_data</span> <span class="n">data</span><span class="p">;</span>
+    <span class="n">memset</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">data</span><span class="p">));</span>
+    <span class="c1">// buffer expects to be null terminated</span>
+    <span class="n">watchy_logPacket</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+    <span class="n">watchy_writePacket</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="n">watchy_fd</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>But whats interesting is you can then Federate all Watchy Servers onto a common backend such as Ganglia or MongoDB.:</p>
 
@@ -54,14 +121,6 @@
 <p>This is great because you can then reuse your existing infrastructure. Watchy comes with a realtime web dashboard and you can view realtime graphs:</p>
 
 <p><img src="http://redbrain.github.io/watchy/images/usage/watchy2.png" alt="alt text" title="Memory Usage"></p>
-
-<p>You can even watch log files in realtime:</p>
-
-<p><img src="http://redbrain.github.io/watchy/images/usage/watchy3.png" alt="alt text" title="Log"></p>
-
-<p>This can be done via:</p>
-
-<p>Or you can directly construct log packets:</p>
         </section>
 
         <aside id="sidebar">
