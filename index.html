@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Watchy : Simple Distributed Process and System Monitoring" />
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Watchy by redbrain</title>
+    <title>Watchy</title>
   </head>
 
   <body>
-    <header>
-      <div class="inner">
-        <h1>Watchy</h1>
-        <h2>Simple Distributed Process and System Monitoring</h2>
-        <a href="https://github.com/redbrain/watchy" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/redbrain/watchy">View on GitHub</a>
+
+          <h1 id="project_title">Watchy</h1>
+          <h2 id="project_tagline">Simple Distributed Process and System Monitoring</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/redbrain/watchy/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/redbrain/watchy/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
 <a name="watchy" class="anchor" href="#watchy"><span class="octicon octicon-link"></span></a>Watchy</h1>
 
 <p>Watchy is a distributed system for Application and Server Monitoring, I've always found most solutions be very complicated and hard to manage. Making applications watch process id's then they stop and the pid has updated and you start the whole thing over again.</p>
@@ -44,7 +47,28 @@
 
 <p><img src="http://redbrain.github.io/watchy/images/arch/watchy1.png" alt="alt text" title="Arch1"></p>
 
-<p>This can be all scripted or manipulatied by Python or C/C++:</p>
+<p>This can be all scripted or manipulatied by Python or C/C++ but first we need to start the server:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>/usr/local/bin/watchy.py --help
+Usage: watchy.py <span class="o">[</span>options<span class="o">]</span>
+
+Options:
+  -h, --help            show this <span class="nb">help </span>message and <span class="nb">exit</span>
+  -v, --version         Print version
+  -l LOGFILE, --logfile<span class="o">=</span>LOGFILE
+                        Ouput logfile
+  -c CONFIG, --config<span class="o">=</span>CONFIG
+                        Config file location
+  -F, --fork            Fork as daemon
+  -N NAME, --name<span class="o">=</span>NAME  Logging name
+  -d, --debug           Verbose Debugging on of off
+<span class="nv">$ </span>/usr/local/bin/watchy -c /etc/watchy/example-watchy.cfg --debug
+<span class="o">[</span>WATCHY<span class="o">]</span> INFO WSGIServer:<span class="o">[</span>gevent<span class="o">]</span> starting http://0.0.0.0:8787/
+<span class="o">[</span>WATCHY<span class="o">]</span> INFO Starting StatsAggregator on 0.0.0.0:7878
+...
+</pre></div>
+
+<p>Now we can start posting stuff to watchy:</p>
 
 <div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pywatchy</span>
 <span class="c"># hostname and port of watchy server</span>
@@ -121,25 +145,18 @@
 <p>This is great because you can then reuse your existing infrastructure. Watchy comes with a realtime web dashboard and you can view realtime graphs:</p>
 
 <p><img src="http://redbrain.github.io/watchy/images/usage/watchy2.png" alt="alt text" title="Memory Usage"></p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/redbrain/watchy/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/redbrain/watchy/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/redbrain/watchy"></a> is maintained by <a href="https://github.com/redbrain">redbrain</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
 
-  
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Watchy maintained by <a href="https://github.com/redbrain">redbrain</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
   </body>
 </html>
