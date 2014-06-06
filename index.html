@@ -52,16 +52,17 @@ Usage: watchy.py <span class="o">[</span>options<span class="o">]</span>
 Options:
   -h, --help            show this <span class="nb">help </span>message and <span class="nb">exit</span>
   -v, --version         Print version
-  -l LOGFILE, --logfile<span class="o">=</span>LOGFILE
-                        Ouput logfile
   -c CONFIG, --config<span class="o">=</span>CONFIG
                         Config file location
   -F, --fork            Fork as daemon
-  -N NAME, --name<span class="o">=</span>NAME  Logging name
-  -d, --debug           Verbose Debugging on of off
-<span class="nv">$ </span>/usr/local/bin/watchy -c /etc/watchy/example-watchy.cfg --debug
-<span class="o">[</span>WATCHY<span class="o">]</span> INFO WSGIServer:<span class="o">[</span>gevent<span class="o">]</span> starting http://0.0.0.0:8787/
-<span class="o">[</span>WATCHY<span class="o">]</span> INFO Starting StatsAggregator on 0.0.0.0:7878
+</pre></div>
+
+<p>You can run this server via:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>/usr/local/bin/watchy.py -c /etc/watchy/example-watchy.cfg 
+WATCHY INFO - Starting StatsAggregator on 0.0.0.0:7878
+WATCHY INFO - Starting Async Backend handler
+WATCHY INFO - WSGIServer:<span class="o">[</span>gevent<span class="o">]</span> starting http://0.0.0.0:8787/
 ...
 </pre></div>
 
@@ -95,13 +96,11 @@ Options:
 
 <p><img src="http://redbrain.github.io/watchy/images/usage/watchy3.png" alt="alt text" title="Arch1"></p>
 
-<p>And if i want to watch some pids i can do:</p>
+<p>And if i want to watch some pids from the command line i can do:</p>
 
 <div class="highlight highlight-bash"><pre><span class="nv">$ </span>/opt/watchy/bin/watcher -b localhost -p 7878 key:pid key:pid...
 <span class="c"># if you specify -k &lt;keyname&gt; this will then do: watchHost (keyname)</span>
 </pre></div>
-
-<p><img src="http://redbrain.github.io/watchy/images/usage/watchy2.png" alt="alt text" title="Arch1"></p>
 
 <p>This can even integrate with C/C++ applications:</p>
 
@@ -138,6 +137,17 @@ Options:
 <p>But whats interesting is you can then Federate all Watchy Servers onto a common backend such as Ganglia or MongoDB.:</p>
 
 <p><img src="http://redbrain.github.io/watchy/images/arch/watchy2.png" alt="alt text" title="Federation onto a common backend"></p>
+
+<p>To put stats to a backend such as mongo simply edit the configuration file to:</p>
+
+<div class="highlight highlight-ini"><pre><span class="k">[watchyd]</span>
+<span class="na">backends</span> <span class="o">=</span> <span class="s">mongo</span>
+
+<span class="k">[mongo]</span>
+<span class="na">type</span> <span class="o">=</span> <span class="s">mongodb</span>
+<span class="na">uri</span> <span class="o">=</span> <span class="s">mongodb://localhost:27017</span>
+
+</pre></div>
 
 <p>This is great because you can then reuse your existing infrastructure. Watchy comes with a realtime web dashboard and you can view realtime graphs:</p>
 
